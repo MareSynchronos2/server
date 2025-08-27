@@ -1,29 +1,29 @@
-using Microsoft.EntityFrameworkCore;
-using SinusSynchronousServer.Hubs;
-using Microsoft.AspNetCore.Http.Connections;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
 using AspNetCoreRateLimit;
-using SinusSynchronousShared.Data;
-using SinusSynchronousShared.Metrics;
-using SinusSynchronousServer.Services;
-using SinusSynchronousShared.Utils;
-using SinusSynchronousShared.Services;
-using Prometheus;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using StackExchange.Redis;
-using StackExchange.Redis.Extensions.Core.Configuration;
-using System.Net;
-using StackExchange.Redis.Extensions.System.Text.Json;
-using SinusSynchronous.API.SignalR;
 using MessagePack;
 using MessagePack.Resolvers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Prometheus;
+using SinusSynchronous.API.SignalR;
 using SinusSynchronousServer.Controllers;
+using SinusSynchronousServer.Hubs;
+using SinusSynchronousServer.Services;
+using SinusSynchronousShared.Data;
+using SinusSynchronousShared.Metrics;
 using SinusSynchronousShared.RequirementHandlers;
+using SinusSynchronousShared.Services;
+using SinusSynchronousShared.Utils;
 using SinusSynchronousShared.Utils.Configuration;
+using StackExchange.Redis;
+using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.System.Text.Json;
+using System.Net;
+using System.Text;
 
 namespace SinusSynchronousServer;
 
@@ -71,7 +71,12 @@ public class Startup
             a.FeatureProviders.Remove(a.FeatureProviders.OfType<ControllerFeatureProvider>().First());
             if (sinusConfig.GetValue<Uri>(nameof(ServerConfiguration.MainServerAddress), defaultValue: null) == null)
             {
-                a.FeatureProviders.Add(new AllowedControllersFeatureProvider(typeof(SinusServerConfigurationController), typeof(SinusBaseConfigurationController), typeof(ClientMessageController)));
+                a.FeatureProviders.Add(new AllowedControllersFeatureProvider(
+                    typeof(SinusServerConfigurationController),
+                    typeof(SinusBaseConfigurationController),
+                    typeof(ClientMessageController),
+                    typeof(ConfigurationController)
+                    ));
             }
             else
             {

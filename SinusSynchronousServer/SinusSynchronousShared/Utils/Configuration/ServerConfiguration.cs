@@ -33,6 +33,13 @@ public class ServerConfiguration : SinusConfigurationBase
     public bool RunPermissionCleanupOnStartup { get; set; } = true;
     public int HubExecutionConcurrencyFilter { get; set; } = 50;
 
+    [RemoteConfiguration]
+    public string ServerName { get; set; } = string.Empty;
+    [RemoteConfiguration]
+    public Uri ServerPublicUri { get; set; } = new Uri("wss://noemptyuri");
+    public string DiscordInvite { get; set; }
+    public string ServerRules { get; set; }
+
     public override string ToString()
     {
         StringBuilder sb = new();
