@@ -11,7 +11,8 @@
 		"VanityRoles": { "0": "Vanity" },
 		"UidLength": 10,
 		"LockRegistrationToRole": false,
-		"DiscordRegistrationRole": ""
+		"DiscordRegistrationRole": "",
+		"SecondaryUIDLimit": 5
 	},
 	"AllowedHosts": "*",
 	"Kestrel": {},

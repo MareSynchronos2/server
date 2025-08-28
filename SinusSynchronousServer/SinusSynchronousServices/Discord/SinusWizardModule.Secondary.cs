@@ -1,9 +1,10 @@
-﻿using Discord.Interactions;
-using Discord;
-using SinusSynchronousShared.Data;
+﻿using Discord;
+using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
+using SinusSynchronousShared.Data;
 using SinusSynchronousShared.Models;
 using SinusSynchronousShared.Utils;
+using SinusSynchronousShared.Utils.Configuration;
 
 namespace SinusSynchronousServices.Discord;
 
@@ -21,7 +22,7 @@ public partial class SinusWizardModule
         var primaryUID = user.User.UID;
         var secondaryUids = await sinusDb.Auth.CountAsync(p => p.PrimaryUserUID == primaryUID).ConfigureAwait(false);
 
-        var allowedUIDs = user.User.IsAdmin ? 5 : user.User.IsModerator ? 1 : 0;
+        var allowedUIDs = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.SecondaryUIDLimit), 5);
 
         EmbedBuilder eb = new();
         eb.WithColor(Color.Blue);

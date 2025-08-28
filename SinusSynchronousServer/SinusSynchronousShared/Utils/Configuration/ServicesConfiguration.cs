@@ -13,7 +13,8 @@ public class ServicesConfiguration : SinusConfigurationBase
     public Dictionary<ulong, string> VanityRoles { get; set; } = new Dictionary<ulong, string>();
     public int UidLength { get; set; } = 10;
     public bool LockRegistrationToRole { get; set; } = false;
-    public ulong? DiscordRegistrationRole {  get; set; } = null!;
+    public ulong? DiscordRegistrationRole { get; set; } = null!;
+    public int SecondaryUIDLimit { get; set; } = 5;
 
     public override string ToString()
     {
