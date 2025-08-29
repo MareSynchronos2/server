@@ -1,4 +1,7 @@
-﻿using SinusSynchronous.API.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using SinusSynchronous.API.Data;
 using SinusSynchronous.API.Data.Enum;
 using SinusSynchronous.API.Dto;
 using SinusSynchronous.API.SignalR;
@@ -10,9 +13,6 @@ using SinusSynchronousShared.Metrics;
 using SinusSynchronousShared.Models;
 using SinusSynchronousShared.Services;
 using SinusSynchronousShared.Utils.Configuration;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 using System.Collections.Concurrent;
 
@@ -30,6 +30,7 @@ public partial class SinusHub : Hub<ISinusHub>, ISinusHub
     private readonly int _maxExistingGroupsByUser;
     private readonly int _maxJoinedGroupsByUser;
     private readonly int _maxGroupUserCount;
+    private readonly string _serverName;
     private readonly IRedisDatabase _redis;
     private readonly OnlineSyncedPairCacheService _onlineSyncedPairCacheService;
     private readonly SinusCensus _sinusCensus;
@@ -57,6 +58,7 @@ public partial class SinusHub : Hub<ISinusHub>, ISinusHub
         _expectedClientVersion = configuration.GetValueOrDefault(nameof(ServerConfiguration.ExpectedClientVersion), new Version(0, 0, 0));
         _maxCharaDataByUser = configuration.GetValueOrDefault(nameof(ServerConfiguration.MaxCharaDataByUser), 10);
         _maxCharaDataByUserVanity = configuration.GetValueOrDefault(nameof(ServerConfiguration.MaxCharaDataByUserVanity), 50);
+        _serverName = configuration.GetValueOrDefault(nameof(ServerConfiguration.ServerName), "Sinus Synchronous");
         _contextAccessor = contextAccessor;
         _redis = redisDb;
         _onlineSyncedPairCacheService = onlineSyncedPairCacheService;
@@ -88,7 +90,7 @@ public partial class SinusHub : Hub<ISinusHub>, ISinusHub
         var dbUser = await DbContext.Users.SingleAsync(f => f.UID == UserUID).ConfigureAwait(false);
         dbUser.LastLoggedIn = DateTime.UtcNow;
 
-        await Clients.Caller.Client_ReceiveServerMessage(MessageSeverity.Information, "Welcome to Sinus Synchronous \"" + _shardName + "\", Current Online Users: " + _systemInfoService.SystemInfoDto.OnlineUsers).ConfigureAwait(false);
+        await Clients.Caller.Client_ReceiveServerMessage(MessageSeverity.Information, $"Welcome to {_serverName} \"{_shardName}\", Current Online Users: ${_systemInfoService.SystemInfoDto.OnlineUsers}").ConfigureAwait(false);
 
         var defaultPermissions = await DbContext.UserDefaultPreferredPermissions.SingleOrDefaultAsync(u => u.UserUID == UserUID).ConfigureAwait(false);
         if (defaultPermissions == null)

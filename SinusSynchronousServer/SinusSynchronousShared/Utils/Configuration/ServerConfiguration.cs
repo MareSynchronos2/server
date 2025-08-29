@@ -34,7 +34,7 @@ public class ServerConfiguration : SinusConfigurationBase
     public int HubExecutionConcurrencyFilter { get; set; } = 50;
 
     [RemoteConfiguration]
-    public string ServerName { get; set; } = string.Empty;
+    public string ServerName { get; set; } = "Sinus Synchronous";
     [RemoteConfiguration]
     public Uri ServerPublicUri { get; set; } = new Uri("wss://noemptyuri");
     public string DiscordInvite { get; set; }

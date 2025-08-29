@@ -1,14 +1,10 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.Rest;
-using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using SinusSynchronousShared.Data;
 using SinusSynchronousShared.Models;
-using SinusSynchronousShared.Services;
 using SinusSynchronousShared.Utils;
 using SinusSynchronousShared.Utils.Configuration;
-using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace SinusSynchronousServices.Discord;
 
@@ -21,10 +17,12 @@ public partial class SinusWizardModule
 
         _logger.LogInformation("{method}:{userId}", nameof(ComponentRegister), Context.Interaction.User.Id);
 
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+
         EmbedBuilder eb = new();
         eb.WithColor(Color.Blue);
         eb.WithTitle("Start Registration");
-        eb.WithDescription("Here you can start the registration process with the Sinus Synchronous server of this Discord." + Environment.NewLine + Environment.NewLine
+        eb.WithDescription($"Here you can start the registration process with the {serverName} server of this Discord." + Environment.NewLine + Environment.NewLine
             + "- Do not use this on mobile because you will need to be able to copy the generated secret key" + Environment.NewLine
             + "# Follow the bot instructions precisely. Slow down and read.");
         ComponentBuilder cb = new();
@@ -105,6 +103,7 @@ public partial class SinusWizardModule
         bool registerSuccess = false;
 
         var isRegistrationLocked = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.LockRegistrationToRole), false);
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
 
         if (isRegistrationLocked)
         {
@@ -137,8 +136,8 @@ public partial class SinusWizardModule
             }
         }
 
-        
-        
+
+
 
         eb.WithColor(Color.Green);
         using var db = await GetDbContext().ConfigureAwait(false);

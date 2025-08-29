@@ -2,12 +2,11 @@
 using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using SinusSynchronousShared.Data;
 using SinusSynchronousShared.Models;
 using SinusSynchronousShared.Services;
 using SinusSynchronousShared.Utils.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
 
 namespace SinusSynchronousServices.Discord;
@@ -184,10 +183,11 @@ internal class DiscordBot : IHostedService
 
     private async Task GenerateOrUpdateWizardMessage(SocketTextChannel channel, IUserMessage? prevMessage)
     {
+        var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
         EmbedBuilder eb = new EmbedBuilder();
-        eb.WithTitle("Sinus Services Bot Interaction Service");
+        eb.WithTitle($"{serverName} Services Bot Interaction Service");
         eb.WithDescription("Press \"Start\" to interact with this bot!" + Environment.NewLine + Environment.NewLine
-            + "You can handle all of your Sinus account needs in this server through the easy to use interactive bot prompt. Just follow the instructions!");
+            + $"You can handle all of your {serverName} account needs in this server through the easy to use interactive bot prompt. Just follow the instructions!");
         eb.WithThumbnailUrl("https://raw.githubusercontent.com/MareSynchronos2/repo/main/SinusSynchronous/images/icon.png");
         var cb = new ComponentBuilder();
         cb.WithButton("Start", style: ButtonStyle.Primary, customId: "wizard-captcha:true", emote: Emoji.Parse("➡️"));
@@ -426,9 +426,10 @@ internal class DiscordBot : IHostedService
         {
             var endPoint = _connectionMultiplexer.GetEndPoints().First();
             var onlineUsers = await _connectionMultiplexer.GetServer(endPoint).KeysAsync(pattern: "UID:*").CountAsync().ConfigureAwait(false);
+            var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
 
             _logger.LogInformation("Users online: " + onlineUsers);
-            await _discordClient.SetActivityAsync(new Game("Sinus for " + onlineUsers + " Users")).ConfigureAwait(false);
+            await _discordClient.SetActivityAsync(new Game($"{serverName} for {onlineUsers} Users")).ConfigureAwait(false);
             await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
         }
     }

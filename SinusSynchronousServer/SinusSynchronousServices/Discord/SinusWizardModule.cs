@@ -1,12 +1,12 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using SinusSynchronousShared.Data;
 using SinusSynchronousShared.Models;
 using SinusSynchronousShared.Services;
 using SinusSynchronousShared.Utils;
 using SinusSynchronousShared.Utils.Configuration;
-using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using System.Text.RegularExpressions;
 
@@ -149,11 +149,13 @@ public partial class SinusWizardModule : InteractionModuleBase
             }
         }
 
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+
         EmbedBuilder eb = new();
-        eb.WithTitle("Welcome to the Sinus Synchronous Service Bot for this server");
+        eb.WithTitle($"Welcome to the {serverName} Service Bot for this server");
         eb.WithDescription("Here is what you can do:" + Environment.NewLine + Environment.NewLine
             + (!hasAccount ? string.Empty : ("- Check your account status press \"ℹ️ User Info\"" + Environment.NewLine))
-            + (hasAccount ? string.Empty : ("- Register a new Sinus Account press \"🌒 Register\"" + Environment.NewLine))
+            + (hasAccount ? string.Empty : ($"- Register a new {serverName} Account press \"🌒 Register\"" + Environment.NewLine))
             + (!hasAccount ? string.Empty : ("- You lost your secret key press \"🏥 Recover\"" + Environment.NewLine))
             + (!hasAccount ? string.Empty : ("- Create a secondary UIDs press \"2️⃣ Secondary UID\"" + Environment.NewLine))
             + (!hasAccount ? string.Empty : ("- Set a Vanity UID press \"💅 Vanity IDs\"" + Environment.NewLine))

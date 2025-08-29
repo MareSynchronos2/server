@@ -15,6 +15,8 @@ public class ServicesConfiguration : SinusConfigurationBase
     public bool LockRegistrationToRole { get; set; } = false;
     public ulong? DiscordRegistrationRole { get; set; } = null!;
     public int SecondaryUIDLimit { get; set; } = 5;
+    [RemoteConfiguration]
+    public string ServerName { get; set; } = "Sinus Synchronous";
 
     public override string ToString()
     {
