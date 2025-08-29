@@ -1,0 +1,81 @@
+name: Build Sinus Services
+
+on:
+  push:
+    tags:
+      # Only trigger on semantic version tags with 'v' prefix
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+# Explicit permissions for security
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Matrix strategy to build multiple images
+    strategy:
+      matrix:
+        service:
+          - name: authservice
+            dockerfile: Docker/build/Dockerfile-SinusSynchronousAuthService
+          - name: server
+            dockerfile: Docker/build/Dockerfile-SinusSynchronousServer
+          - name: services
+            dockerfile: Docker/build/Dockerfile-SinusSynchronousServices
+          - name: staticfilesserver
+            dockerfile: Docker/build/Dockerfile-SinusSynchronousStaticFilesServer
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          # Load the SinusAPI git submodule
+          submodules: 'recursive'
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata for ${{ matrix.service.name }}
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}
+          tags: |
+            # Strip 'v' prefix from version tags: v1.2.3 -> 1.2.3
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push ${{ matrix.service.name }}
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.service.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service.name }}
+#      - name: Generate artifact attestation
+#        uses: actions/attest-build-provenance@v2
+#        with:
+#          subject-name: ghcr.io/${{ github.repository_owner }}/${{ matrix.service.name }}
+#          subject-digest: ${{ steps.push.outputs.digest }}
+#          push-to-registry: true
