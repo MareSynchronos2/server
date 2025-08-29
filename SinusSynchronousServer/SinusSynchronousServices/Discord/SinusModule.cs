@@ -1,15 +1,15 @@
-﻿using System.Net.Http.Headers;
-using Discord;
+﻿using Discord;
 using Discord.Interactions;
-using SinusSynchronousShared.Data;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
-using SinusSynchronousShared.Models;
-using SinusSynchronousShared.Utils;
-using SinusSynchronousShared.Services;
-using StackExchange.Redis;
 using SinusSynchronous.API.Data.Enum;
+using SinusSynchronousShared.Data;
+using SinusSynchronousShared.Models;
+using SinusSynchronousShared.Services;
+using SinusSynchronousShared.Utils;
 using SinusSynchronousShared.Utils.Configuration;
+using StackExchange.Redis;
+using System.Net.Http.Headers;
 
 namespace SinusSynchronousServices.Discord;
 
@@ -23,12 +23,13 @@ public class SinusModule : InteractionModuleBase
 
     public SinusModule(ILogger<SinusModule> logger, IServiceProvider services,
         IConfigurationService<ServicesConfiguration> sinusServicesConfiguration,
-        IConnectionMultiplexer connectionMultiplexer)
+        IConnectionMultiplexer connectionMultiplexer, ServerTokenGenerator serverTokenGenerator)
     {
         _logger = logger;
         _services = services;
         _sinusServicesConfiguration = sinusServicesConfiguration;
         _connectionMultiplexer = connectionMultiplexer;
+        _serverTokenGenerator = serverTokenGenerator;
     }
 
     [SlashCommand("userinfo", "Shows you your user information")]
